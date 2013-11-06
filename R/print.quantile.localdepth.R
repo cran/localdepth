@@ -19,7 +19,7 @@ print.quantile.localdepth <- function(x, digits = max(3, getOption("digits") - 3
       cat("Statistics on the dimension: \n")
       print(summary(x$stats), digits=digits, ...)
     } else {
-      print.default(format(x$quantile, digits=digits),
+      print.default(format(x, digits=digits),
                   print.gap = 2, quote = FALSE)
     }
     cat("\n")

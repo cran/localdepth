@@ -3,10 +3,10 @@
 #	localdepth.simp.circular function
 #	Author: Claudio Agostinelli and Mario Romanazzi
 #	E-mail: claudio@unive.it
-#	Date: August, 20, 2007
-#	Version: 0.1
+#	Date: October, 19, 2011
+#	Version: 0.2
 #
-#	Copyright (C) 2007 Claudio Agostinelli and Mario Romanazzi
+#	Copyright (C) 2011 Claudio Agostinelli and Mario Romanazzi
 #
 #############################################################
 
@@ -37,7 +37,7 @@ localdepth.simp.circular.old <- function(x, y=NULL, tau, use=c('diameters', 'are
       d21 <- abs((x2-x1)%%(2*pi))
       d12 <- abs((x1-x2)%%(2*pi))
       amb <- FALSE
-      if (d21 == d12) {
+      if (d21 == d12 & d12 == pi) {
         diameter[ind1] <- d21
         amb <- TRUE
       } else if (d21 < d12) {

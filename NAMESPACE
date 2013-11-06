@@ -1,5 +1,7 @@
 useDynLib(localdepth)
 
+import(circular)
+importFrom(stats, quantile)
 
 #Export declaration
 
@@ -7,9 +9,14 @@ useDynLib(localdepth)
 export(
 localdepth,
 localdepth.similarity,
+####localdepth1Dfprime,
+####localdepth.simp.approx.clust,
 quantile.localdepth
+###quantile.hyperspheres,
 )
 
+#quantile
+S3method(quantile, localdepth)
 
 #plot 
 S3method(plot, localdepth)

@@ -82,19 +82,19 @@ C
 C
 C           Print the table header.
 C
-            WRITE (IUNIT,9000)
+CCCCCCCC            WRITE (IUNIT,9000)
 C
 C           Print body of table.
 C
-            DO 10 I = 1,NMSG
-               WRITE (IUNIT,9010) LIBTAB(I), SUBTAB(I), MESTAB(I),
-     *            NERTAB(I),LEVTAB(I),KOUNT(I)
-   10       CONTINUE
+CCCCCCC            DO 10 I = 1,NMSG
+CCCCCCC               WRITE (IUNIT,9010) LIBTAB(I), SUBTAB(I), MESTAB(I),
+CCCCCCC     *            NERTAB(I),LEVTAB(I),KOUNT(I)
+CCCCCCC   10       CONTINUE
 C
 C           Print number of other errors.
 C
-            IF (KOUNTX.NE.0) WRITE (IUNIT,9020) KOUNTX
-            WRITE (IUNIT,9030)
+CCCCCCC            IF (KOUNTX.NE.0) WRITE (IUNIT,9020) KOUNTX
+CCCCCCC            WRITE (IUNIT,9030)
    20    CONTINUE
 C
 C        Clear the error tables.

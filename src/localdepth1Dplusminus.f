@@ -3,10 +3,10 @@ C
 C	Functions for the halfspace (local) depth
 C	Author: Claudio Agostinelli and Mario Romanazzi
 C	E-mail: claudio@unive.it
-C	Date: March, 26, 2009
-C	Version: 0.2
+C	Date: November, 16, 2011
+C	Version: 0.1
 C
-C	Copyright (C) 2009 Claudio Agostinelli and Mario Romanazzi
+C	Copyright (C) 2011 Claudio Agostinelli and Mario Romanazzi
 C
 C############################################################
 C    This program is free software; you can redistribute it and/or modify
@@ -24,18 +24,21 @@ C    along with this program; if not, write to the Free Software
 C    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      SUBROUTINE LD1DT (XDATA,YDATA,NXSIZE,NYSIZE,TAU,
-     & ldepth, depth)
+      SUBROUTINE LD1PM (XDATA,YDATA,NXSIZE,NYSIZE,TAU,
+     & poldepth, neldepth, posdepth, negdepth)
 
       implicit double precision(a-h,l,o-z)
       implicit integer (n,i,j)
 
-      dimension ydata(nysize),xdata(nxsize) 
-      dimension depth(nysize), ldepth(nysize)
+      dimension ydata(nysize),xdata(nxsize)
+      dimension posdepth(nysize), poldepth(nysize)
+      dimension negdepth(nysize), neldepth(nysize)
 
       do 10 ind1=1, nysize
-        depth(ind1)=0.0d00
-        ldepth(ind1)=0.0d00
+        posdepth(ind1)=0.0d00
+        poldepth(ind1)=0.0d00
+        negdepth(ind1)=0.0d00
+        neldepth(ind1)=0.0d00
  10   continue
       do 20 ind1=1, nysize
         depthneg=0.0d00
@@ -62,9 +65,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             endif
           endif
  30     continue
-        depth(ind1) = min(depthneg, depthpos)
-        ldepth(ind1) = min(ldepthneg, ldepthpos) 
+        negdepth(ind1) = depthneg
+        posdepth(ind1) = depthpos
+        neldepth(ind1) = ldepthneg
+        poldepth(ind1) = ldepthpos 
  20   continue
       return
       end
-

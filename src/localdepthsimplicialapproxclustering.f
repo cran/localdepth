@@ -1,37 +1,47 @@
 C############################################################
 C
-C	Functions for the simplicial (local) depth
+C	Functions for the approximation of simplicial (local) depth
+C       it report membership for each simplex/point and dimension
+C       used in the construct of a clustering procedure entirely based on depth 
 C	Author: Claudio Agostinelli and Mario Romanazzi
 C	E-mail: claudio@unive.it
-C	Date: September, 01, 2011
-C	Version: 0.3
+C	Date: June, 01, 2010
+C	Version: 0.1
 C
-C	Copyright (C) 2011 Claudio Agostinelli and Mario Romanazzi
+C	Copyright (C) 2010 Claudio Agostinelli and Mario Romanazzi
 C
 C############################################################
+C we have fix ldsai function so that it takes into account the fact
+C that dmah may overflow or NaN. The last is check by dmah.ne.dmah
 
-      SUBROUTINE ldse(X, Y, dtau, nc, nt, nrx, nry, nuse, dtol,
-     & depth, depthlocal)
+
+      SUBROUTINE ldsac(X, Y, dtau, nc, nt, nrx, nry, nuse, dtol,
+     & depth, depthlocal, dapprox)
 
       implicit double precision(a-h,o-z)
       implicit integer (n,i,j,k)
 
       parameter(dzero=0.0d00)
 
-      dimension depth(nry), depthlocal(nry), y(nry,nc), x(nrx, nc)
+      dimension depth(nt,nry+1), depthlocal(nt,nry+1)
+      dimension y(nry,nc), x(nrx, nc)
       dimension isimplex(nc+1), xsimplex(nc+1, nc), depthsim(nry)
-
-      external ldsei
+      dimension napprox(nry)
+      external ldsai
       external ldarea
       external lddiam
+      external diffvol
 
       dc = nc
+      dapprox = dzero
+      call diffvol(dc, dapprox)
 
-      do 5 i=1,nry
-        depth(i) = dzero 
-        depthlocal(i) = dzero 
- 5    continue
-
+      do 4 j=1,nt
+        do 5 i=1,nry
+          depth(j,i) = dzero 
+          depthlocal(j,i) = dzero 
+ 5      continue
+ 4    continue
 C Inizializza il vettore degli indici degli spigoli dei simplessi
       do 10 i=1,(nc+1)
         isimplex(i) = i
@@ -66,15 +76,17 @@ CC calculate the dimension of the simplex
           endif
 
 CC calculate the depth
-          call ldsei(xsimplex, y, nc, nry, dtol, 
-     &      depthsim)
+          call ldsai(xsimplex, y, nc, nry, dtol, 
+     &      napprox, dapprox, depthsim)
           do 70 kk=1,nry
-            depth(kk) = depth(kk)+depthsim(kk)
+            depth(nsimp,kk) = depthsim(kk)
  70       continue
+          depth(nsimp,nry+1) = ddim
           if (ddim.le.dtau) then
             do 80 kk=1,nry
-              depthlocal(kk) = depthlocal(kk)+depthsim(kk) 
+              depthlocal(nsimp,kk) = depthsim(kk) 
  80         continue
+          depthlocal(nsimp,nry+1) = ddim
           endif
 CC End of Evaluate the depth for a given simplex
 
@@ -94,39 +106,48 @@ CC      write(*,*) nsimp
       end
 
 
-      SUBROUTINE ldsea(X, Y, dtau, nc, nt, nsamp, nrx, nry, nuse, dtol,
-     & depth, depthlocal, dd, dld)
+      SUBROUTINE ldsaac(X, Y, dtau, nc, nt, nsamp, nrx, nry, nuse, dtol,
+     & depth, depthlocal, dd, dld, dapprox)
 
       implicit double precision(a-h,o-z)
       implicit integer (n,i,j,k)
 
       parameter(dzero=0.0d00)
 
-      dimension depth(nry), depthlocal(nry), y(nry,nc), x(nrx, nc)
+      dimension depth(nsamp,nry+1), depthlocal(nsamp,nry+1) 
+      dimension y(nry,nc), x(nrx, nc)
       dimension isimplex(nrx), xsimplex(nc+1, nc), depthsim(nry)
+      dimension napprox(nry)
 
-      external ldsei
+      external ldsai
       external ldarea
       external lddiam
       external rndstart
       external rndend
       external rndunif
+      external dgamma
+      external diffvol
 
       call rndstart()
 
       dc = nc
+      dapprox = dzero
+      call diffvol(dc, dapprox)
 
-      do 5 i=1,nry
-        depth(i) = dzero 
-        depthlocal(i) = dzero 
- 5    continue
+      do 4 j=1,nsamp
+        do 5 i=1,nry
+          depth(j,i) = dzero
+          depthlocal(j,i) = dzero
+CC         nnapprox(j,i) = 0
+ 5      continue
+ 4    continue
 
       nsimp = 0
       ntot = 0
 CCC          write(*,*) nt
 CCC          write(*,*) nsamp
 
-      do 20 while (nsimp.lt.nsamp.and.ntot.lt.nt)
+      do 20 while (nsimp.lt.nsamp)
 
         ntot = ntot+1
         do 10 i=1,nrx
@@ -152,17 +173,28 @@ CC calculate the dimension of the simplex
         endif
 
 CC calculate the depth
-        call ldsei(xsimplex, y, nc, nry, dtol,
-     &    depthsim)
-        do 70 kk=1,nry
-          depth(kk) = depth(kk)+depthsim(kk)
- 70     continue
-        if (ddim.le.dtau) then
-          do 80 kk=1,nry
-            depthlocal(kk) = depthlocal(kk)+depthsim(kk) 
- 80       continue
-          nsimp = nsimp+1
+        call ldsai(xsimplex, y, nc, nry, dtol,
+     &    napprox, dapprox, depthsim)
+
+        if (ntot.le.nsamp) then
+CCC          write(*,*) 'ntot' 
+CCC          write(*,*) ntot
+          do 70 kk=1,nry
+            depth(ntot,kk) = depthsim(kk)
+CC            nnapprox(ntot,kk) = napprox(kk)
+ 70       continue
+          depth(ntot,nry+1) = ddim 
         endif
+        if (ddim.le.dtau) then
+          nsimp = nsimp+1
+CCC          write(*,*) 'nsimp' 
+CCC          write(*,*) nsimp
+          do 80 kk=1,nry
+            depthlocal(nsimp,kk) = depthsim(kk) 
+ 80       continue
+          depthlocal(nsimp,nry+1) = ddim
+        endif
+
 CC End of Evaluate the depth for a given simplex
 
 CCC      write(*,*) 'Adesso sono quelle del simplesso'
@@ -175,74 +207,15 @@ CCC      write(*,*) nsimp
 CCC      write(*,*) ntot
  20   continue
 
+
       dld = nsimp
       dd = ntot
+
 
 CCC      write(*,*) dld
 CCC      write(*,*) dd
 
+
       call rndend()
       return
       end
-
-CC calculate the depth for a single simplex
-      SUBROUTINE ldsei(X, Y, nc, nry, dtol, depth)
-
-      implicit double precision(a-h,o-z)
-      implicit integer (n,i,j,k)
-
-      parameter(dzero=0.0d00)
-      parameter(duno=1.0d00)
-      parameter(ddue=2.0d00)
-      parameter(dpi=3.141592654d00)
-
-      dimension depth(nry), y(nry,nc), x(nc+1, nc), xuno(nc, nc)
-      dimension xdue(nc, nry), xtre(nc, nry)
-      dimension ipvt(nc), ztemp(nc), dwork(nc), ddeth(2)
-
-      external dgeco
-      external dgedi
-      external dgemm
-
-      dc = nc      
-
-      do 10 i=1,nc
-        do 20 j=1,nc
-          xuno(j,i) = x(i,j) - x(nc+1,j) 
- 20     continue
- 10   continue
-
-      do 30 i=1,nry
-        depth(i) = dzero
-        do 40 j=1,nc
-          xdue(j,i) = y(i,j) - x(nc+1,j) 
- 40     continue
- 30   continue
-      
-CC calcola inversa della xuno
-      call dgeco(xuno,nc,nc,ipvt,rcond,ztemp)
-      call dgedi(xuno,nc,nc,ipvt,ddeth,dwork,01)	
-CC ora xuno contiene la matrice inversa, il determinante non e' calcolato
-      call dgemm('N','N',nc,nry,nc,duno,xuno,nc,
-     & xdue,nc,dzero,xtre,nc)
-CC ora xtre contiene i coefficienti
-
-      do 50 i=1,nry
-        no=0
-        dsum=dzero
-        do 60 j=1,nc
-          dsum=dsum+xtre(j,i)
-          if (xtre(j,i).lt.-dtol) then
-            no=1
-          endif
-          if (xtre(j,i).gt.duno+dtol) then
-            no=1
-          endif
- 60     continue
-          if (dsum.le.(duno+dtol).and.no.eq.0) then
-            depth(i) = duno
-          endif
- 50   continue
-      return
-      end
-

@@ -3,10 +3,10 @@
 #	localdepth1Dsimplicial function
 #	Author: Claudio Agostinelli and Mario Romanazzi
 #	E-mail: claudio@unive.it
-#	Date: August, 14, 2007
-#	Version: 0.2
+#	Date: February, 10, 2011
+#	Version: 0.2-1
 #
-#	Copyright (C) 2007 Claudio Agostinelli and Mario Romanazzi
+#	Copyright (C) 2011 Claudio Agostinelli and Mario Romanazzi
 #
 #############################################################
 
@@ -36,7 +36,8 @@ localdepth1Dsimplicial <- function(x, y, tau, use) {
     PACKAGE = "localdepth")
   result[[1]] <- result[[2]] <- result[[3]] <- result[[4]] <- NULL
   result[[1]] <- result[[2]] <- result[[3]] <- NULL
-  result$areas <- result$diameters
+  result$diameters <- NULL
+  ##result$areas <- result$diameters
   result$num <- nc
   return(result)
 }

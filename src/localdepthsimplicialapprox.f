@@ -311,6 +311,7 @@ CCC Calcolo matrice var/cov
 
 
 CCC corretta la formula il 08/08/2008
+CCC aggiunto controllo nel caso di dimensione 1 la funzione riporta il valore 0
 
       SUBROUTINE diffvol(dc, dapprox)
 
@@ -324,10 +325,13 @@ CCC corretta la formula il 08/08/2008
 
       external dgamma  
 
-      volbp = (dpi**(dc/ddue))/dgamma(dc/ddue+duno)
-      dapprox = ((dc+duno)**((dc+duno)/ddue)/dgamma(dc+duno) - 
+      if (dc.eq.1) then
+        dapprox = dzero
+      else 
+        volbp = (dpi**(dc/ddue))/dgamma(dc/ddue+duno)
+        dapprox = ((dc+duno)**((dc+duno)/ddue)/dgamma(dc+duno) - 
      &   dc**(-dc/ddue)*volbp)/((dc**(dc/ddue)-dc**(-dc/ddue))*volbp)
-
+      endif
       return
       end
 

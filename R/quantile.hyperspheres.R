@@ -1,26 +1,28 @@
 #############################################################
 #
-#	quantile.simp function
+#	quantile.hyperspheres function
 #	Author: Claudio Agostinelli and Mario Romanazzi
 #	E-mail: claudio@unive.it
 #	Date: August, 26, 2013
-#	Version: 0.5-2
+#	Version: 0.1-1
 #
 #	Copyright (C) 2013 Claudio Agostinelli and Mario Romanazzi
 #
 #############################################################
 
-quantile.simp <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', all=FALSE, ...) {
+quantile.hyperspheres <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', size=FALSE, ...) {
   use <- match.arg(use)
-##  norm <- function(x) sqrt(t(x)%*%x)
-##  area <- function(x) sqrt(sum(x)*(sum(x)/2-x[1])*(sum(x)/2-x[2])*(sum(x)/2-x[3])/2)
+  if (is.vector(x))
+    x <- matrix(x, ncol=1)  
   x <- as.matrix(x)
   nx <- nrow(x)
   nc <- ncol(x)
-  if (nx < nc+1) stop('x must have at least', nc+1, 'rows')
+  if (nx < nc) stop('x must have at least', nc, 'rows')
+  if (use=='volume' & nc!=3)
+    stop("The option use='volume' is available only on the sphere")  
   if (is.character(nsamp)) {
     if (nsamp=='all') {
-      nt <- choose(nx, nc+1)
+      nt <- choose(nx, nc)
       nsamp <- FALSE
     } else {
       stop("if 'nsamp' is character then it must be equal to 'all'")
@@ -36,7 +38,7 @@ quantile.simp <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', al
   
   if (nsamp) {
         if (use=='diameter') {
-          result <- .Fortran("lddiamsa",
+          result <- .Fortran("diamshsa",
                     as.double(x),
                     as.integer(nt),
                     as.integer(nc),
@@ -44,7 +46,7 @@ quantile.simp <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', al
                     result = double(nt),
                    PACKAGE = "localdepth")$result
         } else {
-          result <- .Fortran("ldareasa",
+          result <- .Fortran("areashsa",
                     as.double(x),
                     as.integer(nt),
                     as.integer(nc),
@@ -53,21 +55,8 @@ quantile.simp <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', al
                    PACKAGE = "localdepth")$result
         }
   } else {
-    if (is.matrix(x) | is.data.frame(x)) {
-      if (ncol(x)==2) {
-        result <- rep(0, nt)
         if (use=='diameter') {
-          result <- .C("twoDdiam", x = as.double(x[,1]), y = as.double(x[,2]),
-               nx = as.integer(nx), result = as.double(result),
-               DUP = FALSE, NAOK = FALSE, PACKAGE = "localdepth")$result
-        } else {
-          result <- .C("twoDarea", x = as.double(x[,1]), y = as.double(x[,2]),
-               nx = as.integer(nx), result = as.double(result),
-               DUP = FALSE, NAOK = FALSE, PACKAGE = "localdepth")$result
-        }
-      } else {
-        if (use=='diameter') {
-          result <- .Fortran("lddiams",
+          result <- .Fortran("lddiamshs",
                     as.double(x),
                     as.integer(nt),
                     as.integer(nc),
@@ -75,7 +64,7 @@ quantile.simp <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', al
                     result = double(nt),
                    PACKAGE = "localdepth")$result
         } else {
-          result <- .Fortran("ldareas",
+          result <- .Fortran("ldareashs",
                     as.double(x),
                     as.integer(nt),
                     as.integer(nc),
@@ -83,22 +72,11 @@ quantile.simp <- function(x, probs, use=c('volume', 'diameter'), nsamp='all', al
                     result = double(nt),
                    PACKAGE = "localdepth")$result
         }
-      }
-    } else if (is.vector(x)) {
-      nx <- length(x)
-      if (nx < 2) stop('x must have at least length 2')
-      nc <- choose(nx, 2)
-      result <- rep(0, nc)
-      result <- .C("oneDdiam", x = as.double(x), nx = as.integer(nx),
-               result = as.double(result),
-               DUP = FALSE, NAOK = FALSE, PACKAGE = "localdepth")$result
-    }
   }
   res <- quantile(result, probs, ...)
-  if (all) {
+  if (size) {
      res <- list(quantile=res, stats=result, call=match.call())
   }
-  class(res) <- 'quantile.localdepth'  
+  class(res) <- 'quantile.localdepth'
   return(res)
 }
-

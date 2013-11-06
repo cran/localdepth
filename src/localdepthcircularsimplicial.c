@@ -31,6 +31,12 @@ void ldcircsimp(double *x, double *y, int *nx, int *ny, double *tau,
 
   int amb, ind1, ind2, i1, i2; 
   double z, x1, x2, d12, d21, spherical;
+
+  for (ind2 = 0 ; ind2 < *ny ; ind2++) {
+    depth[ind2] = 0.0;
+    ldepth[ind2] = 0.0;
+  }
+
   ind1 = -1;
   for (i1 = 0 ; i1 < *nx-1 ; i1++) {
     for (i2 = (i1+1) ; i2 < *nx ; i2++) {
@@ -40,7 +46,7 @@ void ldcircsimp(double *x, double *y, int *nx, int *ny, double *tau,
       d21 = fabs(fmod((x2-x1+2.0*M_PI), (2.0*M_PI)));
       d12 = fabs(fmod((x1-x2+2.0*M_PI), (2.0*M_PI)));
       amb = 0;
-      if (d21 == d12) {
+      if (d21 == d12 && d12 == M_PI) {
         diameter[ind1] = d21;
         amb = 1;
       } else if (d21 < d12) {

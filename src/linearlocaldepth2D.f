@@ -123,6 +123,7 @@ CC Evaluate the depth for a given simplex
         ntau=0
         call lld2D(xsimplex, y, nry, dtau, ntau, depthlocal)
         nsimp = nsimp+ntau
+CC        write(*,*) ntau
 CC End of Evaluate the depth for a given simplex
 
 CCC      write(*,*) nsimp
@@ -317,7 +318,9 @@ CC      write(*,*) dlength
       end
 
 CC calculate the linear local depth for a single simplex
-      SUBROUTINE lld2D(X, Y, nry, dtau, ntau, depthlocal)
+CC Tutti e tre i simplessi
+CC      SUBROUTINE lld2D
+      SUBROUTINE ccclld2D(X, Y, nry, dtau, ntau, depthlocal)
 
       implicit double precision(a-h,o-z)
       implicit integer (n,i,j,k)
@@ -338,7 +341,7 @@ CC calculate the linear local depth for a single simplex
         db = db-x(jtre,1)
         dlength = dabs(da*x(juno,1)+db*x(juno,2)+dc)
         if (dlength.le.dtau) then
-          ntau = 1
+          ntau = ntau + 1
           do 200 j=1,nry
             dy = dabs(da*y(j,1)+db*y(j,2)+dc)
             if (dy.le.dlength) then
@@ -354,8 +357,96 @@ CC calculate the linear local depth for a single simplex
       return
       end
 
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
+CCC solo il simplesso con piu' punti
+      SUBROUTINE lld2D(X, Y, nry, dtau, ntau, depthlocal)
 
+      implicit double precision(a-h,o-z)
+      implicit integer (n,i,j,k)
+
+      parameter(dzero=0.0d00)
+      parameter(duno=1.0d00)
+      parameter(ddue=2.0d00)
+
+      dimension x(3, 2), y(nry,2), depthlocal(nry)
+      dimension dtemp(nry,3)
+      dimension dsumdepth(3)
+      dimension idepth(3) 
+
+      do 50 j=1,nry
+        dtemp(j,1) = dzero
+        dtemp(j,2) = dzero
+        dtemp(j,3) = dzero
+ 50   continue
+
+      juno = 1
+      jdue = 2
+      jtre = 3
+      do 100 i=1,3
+        da = (x(juno,2)+x(jdue,2))/ddue
+        db = (x(juno,1)+x(jdue,1))/ddue
+        dc = da*x(jtre,1)-db*x(jtre,2)
+        da = x(jtre,2)-da
+        db = db-x(jtre,1)
+        dlength = dabs(da*x(juno,1)+db*x(juno,2)+dc)
+        if (dlength.le.dtau) then
+          idepth(i) = 1
+          ntau = 1
+          do 200 j=1,nry
+            dy = dabs(da*y(j,1)+db*y(j,2)+dc)
+            if (dy.le.dlength) then
+               dtemp(j,i) = duno
+CCCC              depthlocal(j) = depthlocal(j) + duno
+            endif
+CCC            write(*,*) dtemp(j,i)
+ 200      continue
+        endif
+        jquattro = jtre 
+        jtre = jdue
+        jdue = juno
+        juno = jquattro
+ 100  continue
+
+      do 300 k=1,3
+        dsumdepth(k) = dzero
+ 300  continue
+
+      do 500 k=1,3
+        do 400 j=1,nry
+        dsumdepth(k) = dsumdepth(k)+dtemp(j,k)
+ 400  continue
+CCC        write(*,*) dsumdepth(k)
+ 500  continue
+
+      i=0
+      iii = idepth(1)+idepth(2)+idepth(3)
+      if (iii.gt.0) then 
+      if (idepth(1)*dsumdepth(1).ge.idepth(2)*dsumdepth(2)) then
+          i=1
+          if (idepth(1)*dsumdepth(1).le.idepth(3)*dsumdepth(3)) then
+            i=3   
+          endif
+      else
+          i=2
+          if (idepth(2)*dsumdepth(2).le.idepth(3)*dsumdepth(3)) then
+            i=3   
+          endif
+      endif
+ 
+CCC      write(*,*) i
+
+      do 700 j=1,nry
+        depthlocal(j) = depthlocal(j)+dtemp(j,i)
+ 700  continue
+      else
+CC     do 800 j=1,nry
+CC       depthlocal(j) = depthlocal(j)+dzero
+CC 800  continue
+      endif
+      return
+      end
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCC depth
 CCCCCCCCCCCCCCCCCCCCCCCCCCCC

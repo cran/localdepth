@@ -3,14 +3,18 @@
 \docType{data}
 \title{Roman-Venetian Glass dataset}
 \description{
-The dataset gives the compositions of 73 glass specimens excavated in a series of archeological campaign in the island of Venice lagoon and nearby borders.
+  The dataset gives the compositions of 73 glass specimens excavated in
+  a series of archeological campaign in the island of Venice lagoon
+  and nearby borders.
 }
 \usage{data(glasses)}
 \format{
 Data frame with 73 observations on the following 14 variables.
   \describe{
     \item{\code{ID}}{Specimens number}
-    \item{\code{CLA}}{type of glass: 1, Venetian glass (XIVth-XVIth centuries); 2, Roman glass (Ist-Vth centuries A.D.); 3, Middle Ages glass (VIth-XIIIth centuries)}
+    \item{\code{CLA}}{type of glass: 1, Venetian glass (XIVth-XVIth
+      centuries); 2, Roman glass (Ist-Vth centuries A.D.);
+      3, Middle Ages glass (VIth-XIIIth centuries)}
     \item{\code{SIO2}}{a numeric vector}
     \item{\code{AL2O3}}{a numeric vector}
     \item{\code{NA2O}}{a numeric vector}
@@ -26,13 +30,16 @@ Data frame with 73 observations on the following 14 variables.
   }
 }
 \details{
-Variables SIO2 to MNO are provide composition of glass specimens on the corresponding chemical compound.
+  Variables SIO2 to MNO are provide composition of glass specimens
+  on the corresponding chemical compound.
 }
 \source{
 Mario Romanazzi.
 }
 \references{
-M. Verita', A. Renier and S. Zecchin (2002) Chemical analyses of ancient glass findings excavated in the venetian lagoon. Journal of Cultural Heritage, 3, 261-271.
+  M. Verita', A. Renier and S. Zecchin (2002) Chemical analyses of ancient
+  glass findings excavated in the venetian lagoon. Journal of Cultural
+  Heritage, 3, 261-271.
 }
 \examples{
 glasses <- na.omit(glasses[,-1])
@@ -47,15 +54,21 @@ lab[glasses[,1] == 2] <- "R"
 lab1 <- paste(lab,1:n,sep="")
 pc <- princomp(glasses[,-1],cor=TRUE)
 summary(pc)
-plot(scale(pc$scores[,1]),scale(pc$scores[,2]),pch=20, xlab="PC1 (36)", ylab="PC2 (28)", main="Roman Venetian Glasses Data")
-text(scale(pc$scores[,1]),scale(pc$scores[,2]), labels=lab1,cex=0.6,pos=3,col=col)
-abline(h=0,v=0,lty="dashed",col="grey")
-plot(scale(pc$scores[,1]),scale(pc$scores[,3]),pch=20, xlab="PC1 (36)", ylab="PC3 (11)", main="Roman Venetian Glasses Data")
-text(scale(pc$scores[,1]),scale(pc$scores[,3]), labels=lab1,cex=0.6,pos=3,col=col)
-abline(h=0,v=0,lty="dashed",col="grey")
-plot(scale(pc$scores[,2]),scale(pc$scores[,3]),pch=20, xlab="PC2 (28)", ylab="PC3 (11)", main="Roman Venetian Glasses Data")
-text(scale(pc$scores[,2]),scale(pc$scores[,3]), labels=lab1,cex=0.6,pos=3,col=col)
-abline(h=0,v=0,lty="dashed",col="grey")
+plot(scale(pc$scores[,1]), scale(pc$scores[,2]), pch=20, xlab="PC1 (36)",
+  ylab="PC2 (28)", main="Roman Venetian Glasses Data")
+text(scale(pc$scores[,1]), scale(pc$scores[,2]), labels=lab1, cex=0.6,
+  pos=3, col=col)
+abline(h=0, v=0, lty="dashed", col="grey")
+plot(scale(pc$scores[,1]), scale(pc$scores[,3]), pch=20, xlab="PC1 (36)",
+  ylab="PC3 (11)", main="Roman Venetian Glasses Data")
+text(scale(pc$scores[,1]), scale(pc$scores[,3]), labels=lab1, cex=0.6,
+  pos=3, col=col)
+abline(h=0, v=0, lty="dashed", col="grey")
+plot(scale(pc$scores[,2]), scale(pc$scores[,3]), pch=20, xlab="PC2 (28)",
+  ylab="PC3 (11)", main="Roman Venetian Glasses Data")
+text(scale(pc$scores[,2]), scale(pc$scores[,3]), labels=lab1, cex=0.6,
+  pos=3, col=col)
+abline(h=0, v=0, lty="dashed", col="grey")
 
 set.seed(1234)
 err1 <- rnorm(n,0,sd(glasses[,2])/100)
@@ -70,7 +83,8 @@ err9 <- rnorm(n,0,sd(glasses[,10])/100)
 err10 <- rnorm(n,0,sd(glasses[,11])/100)
 err11 <- rnorm(n,0,sd(glasses[,12])/100)
 err12 <- rnorm(n,0,sd(glasses[,13])/100)
-glasses <- glasses[,-1] + data.frame(err1,err2,err3,err4,err5,err6,err7,err8,err9, err10,err11,err12)
+glasses <- glasses[,-1] + data.frame(err1,err2,err3,err4,err5,err6,err7,
+  err8,err9, err10,err11,err12)
 
 tau <- quantile.localdepth(glasses, probs=c(0.1, 0.9), method='mahalanobis')
 gla10 <- localdepth(glasses, tau=tau[1], method='mahalanobis')

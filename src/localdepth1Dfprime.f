@@ -3,10 +3,10 @@ C
 C	Functions for the halfspace (local) depth
 C	Author: Claudio Agostinelli and Mario Romanazzi
 C	E-mail: claudio@unive.it
-C	Date: March, 26, 2009
+C	Date: November, 24, 2011
 C	Version: 0.2
 C
-C	Copyright (C) 2009 Claudio Agostinelli and Mario Romanazzi
+C	Copyright (C) 2011 Claudio Agostinelli, Juan Francisco Rosco Nieves and Mario Romanazzi
 C
 C############################################################
 C    This program is free software; you can redistribute it and/or modify
@@ -24,18 +24,17 @@ C    along with this program; if not, write to the Free Software
 C    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
-      SUBROUTINE LD1DT (XDATA,YDATA,NXSIZE,NYSIZE,TAU,
-     & ldepth, depth)
+      SUBROUTINE LD1FP (XDATA,YDATA,NXSIZE,NYSIZE,TAU,
+     & fprime)
 
       implicit double precision(a-h,l,o-z)
       implicit integer (n,i,j)
 
-      dimension ydata(nysize),xdata(nxsize) 
-      dimension depth(nysize), ldepth(nysize)
+      dimension ydata(nysize),xdata(nxsize)
+      dimension fprime(nysize)
 
       do 10 ind1=1, nysize
-        depth(ind1)=0.0d00
-        ldepth(ind1)=0.0d00
+        fprime(ind1)=0.0d00
  10   continue
       do 20 ind1=1, nysize
         depthneg=0.0d00
@@ -62,9 +61,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             endif
           endif
  30     continue
-        depth(ind1) = min(depthneg, depthpos)
-        ldepth(ind1) = min(ldepthneg, ldepthpos) 
+        fprime(ind1) = (ldepthpos - ldepthneg)/tau
  20   continue
       return
       end
-

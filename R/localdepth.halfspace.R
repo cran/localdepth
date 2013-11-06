@@ -27,7 +27,7 @@ localdepth.halfspace <- function(x, y=NULL, tau, use=c('volume', 'diameter')) {
   result$depth <- result$depth/nx
   result$max.localdepth <- max(result$localdepth)
   result$max.depth <- max(result$depth)  
-  result$num <- c(nx, nx) 
+  result$num <- c(nx, nx)
   result$call <- match.call()
   result$tau <- tau
   result$use <- use

@@ -3,10 +3,10 @@
 #	quantile.linear2D function
 #	Author: Claudio Agostinelli and Mario Romanazzi
 #	E-mail: claudio@unive.it
-#	Date: November, 20, 2008
-#	Version: 0.1
+#	Date: August, 26, 2013
+#	Version: 0.1-1
 #
-#	Copyright (C) 2008 Claudio Agostinelli and Mario Romanazzi
+#	Copyright (C) 2013 Claudio Agostinelli and Mario Romanazzi
 #
 #############################################################
 
@@ -49,10 +49,11 @@ quantile.linear2D <- function(x, probs, nsamp='all', all=FALSE) {
       result = double(nt*3),
       PACKAGE = "localdepth")$result
   }
-  res <- quantile.default(result, probs)
+  res <- quantile(result, probs)
   if (all) {
      res <- list(quantile=res, stats=result, call=match.call())
   }
+  class(res) <- 'quantile.localdepth'  
   return(res)
 }
 

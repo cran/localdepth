@@ -3,14 +3,14 @@
 #	quantile.mahalanobis function
 #	Author: Claudio Agostinelli and Mario Romanazzi
 #	E-mail: claudio@unive.it
-#	Date: December, 17, 2008
-#	Version: 0.3
+#	Date: July, 19, 2011
+#	Version: 0.3-1
 #
-#	Copyright (C) 2008 Claudio Agostinelli and Mario Romanazzi
+#	Copyright (C) 2011 Claudio Agostinelli and Mario Romanazzi
 #
 #############################################################
 
-quantile.mahalanobis <- function(x, probs, nsamp='all', all=FALSE, covariance=NULL) {
+quantile.mahalanobis <- function(x, probs, nsamp='all', all=FALSE, covariance=NULL, ...) {
   x <- data.matrix(x)
   if (ncol(x) < 2) stop('At least two columns must be supplied')
   nx <- nrow(x)
@@ -33,8 +33,9 @@ quantile.mahalanobis <- function(x, probs, nsamp='all', all=FALSE, covariance=NU
       mah[k] <- sqrt(temp%*%Sinv%*%temp)
     }
   }
-  res <- quantile.default(mah, probs)
+  res <- quantile(mah, probs, ...)
   if (all)
     res <- list(quantile=res, stats=mah, call=match.call())
+  class(res) <- 'quantile.localdepth'
   return(res)
 }
